@@ -1,0 +1,17 @@
+name: 新增操作卡或场景
+description: 提出新的社招求职场景及完成标准
+labels: [enhancement]
+body:
+  - type: textarea
+    id: context
+    attributes:
+      label: 读者具体卡在什么地方？
+      description: 请脱敏，不上传个人履历和第三方隐私。
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: 建议的动作、完成凭证、卡住怎么办
+    validations:
+      required: true

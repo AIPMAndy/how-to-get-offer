@@ -1,0 +1,20 @@
+name: 反馈错误
+description: 报告错链、事实错误或交互问题
+labels: [bug]
+body:
+  - type: textarea
+    id: issue
+    attributes:
+      label: 错误在哪里？
+      description: 不要填写真实个人简历、电话、身份证或公司敏感信息。
+      placeholder: 页面或任务ID、实际表现
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: 你认为应该怎样修改？
+  - type: input
+    id: source
+    attributes:
+      label: 证据或官方来源（如涉及事实/政策）
