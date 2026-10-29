@@ -14,6 +14,10 @@
 
 </div>
 
+> **TL;DR｜一句话**：这是 AI 酋长 Andy 写的免费开源社招求职指南。适合投简历没回应、面试总挂或准备谈薪的社招求职者。它按定位、简历、渠道/内推、面试、谈薪/Offer、入职六步讲清楚，附 30 天执行表、可复制模板和离线互动页面。
+>
+> 作者：AI 酋长 Andy（[GitHub @AIPMAndy](https://github.com/AIPMAndy) · [X @AIPMAndy](https://x.com/AIPMAndy) · [metaver.vip](https://metaver.vip/)）
+
 **社招怎么拿 Offer？** 这份由 AI 酋长 Andy 写的免费开源指南按「定位 → 简历 → 渠道/内推 → 面试 → 谈薪/Offer → 入职」六步讲清楚，附 30 天执行表和可复制模板，不用登录也不用安装。
 
 
@@ -161,6 +165,24 @@ python3 -m unittest discover -s tests -v
 **项目发起人：AI 酋长 Andy**
 
 ---
+
+## 常见问题 FAQ
+
+### 社招怎么拿 Offer？
+
+按六步走：定位 → 简历 → 渠道/内推 → 面试 → 谈薪/Offer → 入职。先确认目标岗位，用真实项目证明匹配，再用漏斗数据定位卡点。
+
+### 投了很多简历都没回复怎么办？
+
+先检查目标岗位是否匹配、简历有没有可信的项目证据、招聘是否真实有效；可按 [零回复排查](playbooks/10-zero-replies.md) 逐项处理。
+
+### 需要登录或付费吗？
+
+不需要。指南免费、无需登录和安装；双击 `index.html` 可离线使用 100 项任务卡、求职漏斗和薪酬比较器，个人输入只存本机浏览器。
+
+### 能保证拿到 Offer 吗？
+
+不能。项目不承诺录用、涨薪或内推结果。需要有人帮你看具体情况，可以联系作者微信 AIPMAndy。
 
 <!-- andy-author-card:start -->
 ## 作者 / About the author
