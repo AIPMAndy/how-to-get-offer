@@ -4,7 +4,7 @@ on:
     branches: [main]
   workflow_dispatch:
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
 concurrency:
@@ -25,6 +25,24 @@ jobs:
         run: |
           python build.py
           python -m unittest discover -s tests -v
+      - name: Build and inspect bilingual-searchable PDF
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y fonts-noto-cjk poppler-utils libpango-1.0-0 libpangoft2-1.0-0 libharfbuzz0b
+          python -m pip install --disable-pip-version-check weasyprint==68.0 markdown==3.10
+          python scripts/build_pdf.py
+          test -s pdf/how-to-get-offer-guide.pdf
+          pdftotext pdf/how-to-get-offer-guide.pdf - | grep -q 'AIPMAndy'
+          pdfinfo pdf/how-to-get-offer-guide.pdf | grep -q 'Pages:'
+      - name: Save PDF to public GitHub repository
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add pdf/how-to-get-offer-guide.pdf pdf/edition.json
+          if ! git diff --cached --quiet; then
+            git commit -m "docs(pdf): synchronize generated Offer handbook"
+            git push origin HEAD:main
+          fi
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
