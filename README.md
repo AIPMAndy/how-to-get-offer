@@ -10,13 +10,13 @@
 
 ![项目封面](assets/social-preview.svg)
 
-[**🌐 在线互动指南**](https://aipmandy.github.io/how-to-get-offer/) · [**💾 本地离线页面**](index.html) · [**⚡ 3 分钟开始**](guides/00-start-here.md) · [**📅 30 天执行表**](guides/30-day-plan.md) · [**🧰 复制模板**](templates/) · [**🙋 求职咨询**](#想让人帮你诊断一次)
+[**🌐 在线互动指南**](https://aipmandy.github.io/how-to-get-offer/) · [**📕 完整 PDF**](https://aipmandy.github.io/how-to-get-offer/pdf/how-to-get-offer-guide.pdf) · [**💾 本地离线页面**](index.html) · [**⚡ 3 分钟开始**](guides/00-start-here.md) · [**📅 30 天执行表**](guides/30-day-plan.md) · [**🧰 复制模板**](templates/) · [**🙋 求职咨询**](#想让人帮你诊断一次)
 
 </div>
 
 > **TL;DR｜一句话**：这是 AI 酋长 Andy 写的免费开源社招求职指南。适合投简历没回应、面试总挂或准备谈薪的社招求职者。它按定位、简历、渠道/内推、面试、谈薪/Offer、入职六步讲清楚，附 30 天执行表、可复制模板和离线互动页面。
 >
-> 作者：AI酋长Andy（Andy Liu；流量 AI 联合创始人、星觉 AI 创始人；[GitHub @AIPMAndy](https://github.com/AIPMAndy) · [X @AIPMAndy](https://x.com/AIPMAndy) · [metaver.vip](https://metaver.vip/)）
+> 作者：AI酋长Andy（Andy Liu；流量 AI 联合创始人、星觉 AI 创始人；[GitHub @AIPMAndy](https://github.com/AIPMAndy) · [X @AIPMAndy](https://x.com/AIPMAndy) · [metaver.vip](https://metaver.vip/) · [星觉科技](https://www.a6no1.cn/)）
 
 **社招怎么拿 Offer？** 这份由 AI 酋长 Andy 写的免费开源指南按「定位 → 简历 → 渠道/内推 → 面试 → 谈薪/Offer → 入职」六步讲清楚，附 30 天执行表和可复制模板，不用登录也不用安装。
 
@@ -30,7 +30,7 @@
 
 - 作者：AI酋长Andy（Andy Liu，英文名 AI Chief Andy），流量 AI 联合创始人、星觉 AI 创始人。星觉科技，北京。
 - 阅读或使用：[在线阅读](https://aipmandy.github.io/how-to-get-offer/) · [仓库](https://github.com/AIPMAndy/how-to-get-offer)
-- 联系：微信 `AIPMAndy`（备注「社招 Offer」）· [官网 metaver.vip](https://metaver.vip/) · [X @AIPMAndy](https://x.com/AIPMAndy)
+- 联系：微信 `AIPMAndy`（备注「社招 Offer」）· [官网 metaver.vip](https://metaver.vip/) · [公司官网](https://www.a6no1.cn/) · [X @AIPMAndy](https://x.com/AIPMAndy)
 - 内容免费使用。企业合作或个人陪跑请先沟通，公开页不公示价格。
 <!-- andy-geo-faq:end -->
 

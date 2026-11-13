@@ -42,6 +42,14 @@
  function money(n){return n.toLocaleString('zh-CN',{minimumFractionDigits:0,maximumFractionDigits:0})+' 元';}
  function salary(){const data=['a','b'].map(x=>{const base=num(x+'Base'),months=num(x+'Months'),stipend=num(x+'Stipend'),target=num(x+'Target'),cost=num(x+'Cost');return {fixed:base*months+stipend,net:base*months+stipend-cost,variable:target};});const d=$('salaryResults');d.replaceChildren();data.forEach((x,i)=>{const row=el('div','salary-row'),left=el('div'),v=el('div','val',money(x.net));left.append(el('b','',i?'Offer B':'Offer A'),el('div','fine','年度固定现金 '+money(x.fixed)+' − 额外年成本；目标奖金 '+money(x.variable)+'（不计入确定收入）'));row.append(left,v);d.append(row);});const diff=data[1].net-data[0].net;const tip=el('p','fine','B − A 的年度固定现金差：'+(diff>0?'+':'')+money(diff)+'。这是税前粗算，仅比较已确认固定现金与新增成本，未计算个税、社保及其他利益。');d.append(tip);}
  ['aBase','aMonths','aStipend','aTarget','aCost','bBase','bMonths','bStipend','bTarget','bCost'].forEach(id=>$(id).addEventListener('input',salary));
+
+ // Explicit opt-in copy: no collection, transmission, or analytics.
+ const copyBtn=$('copyWechat');
+ if(copyBtn)copyBtn.addEventListener('click',async()=>{
+   try{if(!navigator.clipboard||!window.isSecureContext)throw Error('clipboard');
+     await navigator.clipboard.writeText('AIPMAndy');copyBtn.textContent='已复制 AIPMAndy';}
+   catch{copyBtn.textContent='请手动复制 AIPMAndy';}
+ });
  updateProgress();renderTasks();renderJobs();salary();save();
  if(!canSave){$('storageWarning').classList.remove('hidden');}
 })();
