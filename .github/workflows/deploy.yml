@@ -34,6 +34,18 @@ jobs:
           test -s pdf/how-to-get-offer-guide.pdf
           pdftotext pdf/how-to-get-offer-guide.pdf - | grep -q 'AIPMAndy'
           pdfinfo pdf/how-to-get-offer-guide.pdf | grep -q 'Pages:'
+      - name: Full-page PDF automated QA and render evidence
+        run: |
+          python -m pip install --disable-pip-version-check pymupdf==1.26.6 pillow==12.0.0
+          python scripts/pdf_quality_gate.py
+      - name: Preserve PDF QA report and every-page contact sheets
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: offer-pdf-qa
+          path: artifacts/pdf-qa/
+          if-no-files-found: warn
+          retention-days: 30
       - name: Save PDF to public GitHub repository
         run: |
           git config user.name "github-actions[bot]"
