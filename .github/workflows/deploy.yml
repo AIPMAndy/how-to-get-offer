@@ -61,3 +61,34 @@ jobs:
           path: '.'
       - id: deployment
         uses: actions/deploy-pages@v4
+
+      - name: Verify public Pages bytes after release
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          from urllib.request import Request, urlopen
+          import hashlib, time
+          root="https://aipmandy.github.io/how-to-get-offer/"
+          digest=hashlib.sha256(Path("pdf/how-to-get-offer-guide.pdf").read_bytes()).hexdigest()
+          def get(path):
+              req=Request(root+path,headers={"User-Agent":"Xingjue-Pages-QA/1.0"})
+              with urlopen(req,timeout=15) as resp:
+                  assert resp.status==200,(path,resp.status)
+                  return resp.read()
+          for attempt in range(24):
+              try:
+                  index=get("")
+                  assert b"how-to-get-offer-guide.pdf" in index
+                  assert b"AIPMAndy" in index and b"metaver.vip" in index and b"a6no1.cn" in index
+                  pdf=get("pdf/how-to-get-offer-guide.pdf?sha="+digest[:12])
+                  assert hashlib.sha256(pdf).hexdigest()==digest, "Online PDF differs from generated source"
+                  robots=get("robots.txt")
+                  sitemap=get("sitemap.xml")
+                  assert b"Sitemap" in robots and b"<urlset" in sitemap
+                  print("LIVE PASS: homepage + robots + sitemap HTTP 200; PDF SHA-256",digest)
+                  break
+              except Exception as exc:
+                  if attempt==23: raise
+                  print(f"Pages warming ({attempt+1}/24): {exc}")
+                  time.sleep(5)
+          PY
