@@ -75,7 +75,7 @@ def run(base_url):
 
                 # Check accessible action, not clipboard permission state on an emulator.
                 page.locator("#copyWechat").click()
-                assert "AIPMAndy" in page.locator("#copyWechat").inner_text(), label
+                page.wait_for_function("""() => document.querySelector("#copyWechat").textContent.includes("AIPMAndy")""", timeout=5000)
                 assert_no_overflow(page, label + "/after-interactions")
                 page.screenshot(path=str(OUT / (label + ".png")), full_page=True)
                 assert not failures, (label, failures)
