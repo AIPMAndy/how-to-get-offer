@@ -1,0 +1,38 @@
+name: Browser regression - desktop and mobile viewports
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  browser-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install Chromium test runner
+        run: |
+          python -m pip install --disable-pip-version-check playwright==1.56.0
+          python -m playwright install --with-deps chromium
+      - name: Build from single source and test actual interactions
+        run: |
+          set -euo pipefail
+          python build.py
+          python -m unittest discover -s tests -p 'test_integrity.py' -v
+          python -m http.server 8765 --bind 127.0.0.1 > /tmp/offer-http.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill "$SERVER_PID" 2>/dev/null || true' EXIT
+          python tests/browser_smoke.py --base-url http://127.0.0.1:8765/
+      - name: Preserve mobile and desktop screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: offer-browser-qa
+          path: artifacts/browser-qa/*.png
+          if-no-files-found: warn
+          retention-days: 30
