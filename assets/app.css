@@ -21,3 +21,9 @@ body{letter-spacing:-.006em}.nav{background:rgba(255,255,255,.96);border-bottom:
 @media(max-width:970px){.nav-links{gap:11px}.nav-links a{font-size:12px}.nav-links a.nav-company{display:none}}
 @media(max-width:650px){.hero-inner{padding:51px 0 46px;gap:26px}.hero h1{letter-spacing:-.045em}.hero-trust{gap:8px 14px}.hero-trust span:first-child{flex-basis:100%}.nav-links{overflow-x:auto;white-space:nowrap;flex-wrap:nowrap;scrollbar-width:none}.nav-links a{flex:none}.hero-actions .btn{flex:1 1 100%;text-align:center}.cta-links{width:100%}}
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;animation:none!important;transition:none!important}}
+
+/* Stage 5: accessible task filtering and offline task export. */
+.toolbox .filter-check{display:inline-flex;align-items:center;gap:7px;color:#34465b;font-size:13px;font-weight:650;white-space:nowrap;cursor:pointer}
+.toolbox .filter-check input{accent-color:#254f87;width:18px;height:18px;margin:0}
+.toolbox #resetTaskFilters{min-height:44px}
+@media(max-width:620px){.toolbox .filter-check{min-height:44px}.toolbox #resetTaskFilters{flex:1}}

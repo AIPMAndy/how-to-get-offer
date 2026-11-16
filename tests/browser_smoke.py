@@ -58,6 +58,23 @@ def run(base_url):
                 page.locator("#taskSearch").fill("")
                 assert page.locator("#taskList .task").count() == 100, label
 
+                # The uncompleted-only view respects saved progress; reset restores all 100 tasks.
+                page.locator("#pendingOnly").check()
+                assert page.locator("#taskList .task").count() == 99, label
+                page.locator("#taskSearch").fill("term-that-cannot-match-any-task-zzzz")
+                assert page.locator("#taskEmpty").is_visible(), label
+                page.locator("#resetTaskFilters").click()
+                assert page.locator("#taskList .task").count() == 100, label
+                assert not page.locator("#pendingOnly").is_checked(), label
+                assert page.locator("#taskSearch").evaluate("(el) => document.activeElement === el"), label
+                with page.expect_download() as task_file_info:
+                    page.locator("#taskTxtExport").click()
+                task_export = Path(task_file_info.value.path()).read_text(encoding="utf-8-sig")
+                assert "当前筛选共 100 项" in task_export, label
+                assert "微信：AIPMAndy" in task_export, label
+                assert "执行：" in task_export and "凭证：" in task_export, label
+                assert "<img src=x" not in task_export, label
+
                 # A user-provided company name must be rendered as text, never as HTML.
                 suspicious = "<img src=x onerror=alert(1)>"
                 page.locator("#jobCompany").fill(suspicious)
