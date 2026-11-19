@@ -99,7 +99,7 @@ def run(base_url):
                 # Published Markdown reader has its own canonical, author and source trail.
                 chapter = page.goto(base_url + "guides/00-start-here.html", wait_until="networkidle")
                 assert chapter is not None and chapter.status == 200, (label, "reader status")
-                assert page.locator('link[rel="canonical"]').get_attribute("href") == base_url + "guides/00-start-here.html", label
+                assert page.locator('link[rel="canonical"]').get_attribute("href") == "https://aipmandy.github.io/how-to-get-offer/guides/00-start-here.html", label
                 assert page.locator('script[type="application/ld+json"]').count() == 1, label
                 assert page.get_by_role("link", name="公司官网 ↗").count() == 1, label
                 assert page.get_by_role("link", name="研究来源及历史核验日").count() == 1, label
