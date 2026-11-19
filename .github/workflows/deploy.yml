@@ -85,6 +85,14 @@ jobs:
                   robots=get("robots.txt")
                   sitemap=get("sitemap.xml")
                   assert b"Sitemap" in robots and b"<urlset" in sitemap
+                  # Verify real published reader pages after deploy, not merely a successful commit.
+                  assert sitemap==Path("sitemap.xml").read_bytes(), "Online sitemap differs from committed source"
+                  for path in ("guides/00-start-here.html","playbooks/06-job-scams.html","examples/engineering-manager.html","templates/offer-checklist.html"):
+                      source=Path(path).read_bytes()
+                      online=get(path+"?sha="+hashlib.sha256(source).hexdigest()[:12])
+                      assert online==source, "Online reader differs from published build: "+path
+                      assert b'rel="canonical"' in online and b'ld+json' in online, path
+                  print("LIVE PASS: 4 distinct reader pages + sitemap bytes verified")
                   print("LIVE PASS: homepage + robots + sitemap HTTP 200; PDF SHA-256",digest)
                   break
               except Exception as exc:

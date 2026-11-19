@@ -71,6 +71,26 @@ class Integrity(unittest.TestCase):
         self.assertNotIn('56项', self.html)
         self.assertIn('个人信息保护法', (ROOT/'SOURCES.md').read_text('utf-8'))
 
+    def test_reader_seo_evidence_and_unique_canonical(self):
+        reader_files=[p for kind in ('guides','playbooks','templates','examples')
+                      for p in (ROOT/kind).glob('*.html')]
+        self.assertEqual(len(reader_files),43)
+        for p in reader_files:
+            body=p.read_text('utf-8')
+            url='https://aipmandy.github.io/how-to-get-offer/'+p.relative_to(ROOT).as_posix()
+            self.assertIn(f'<link rel="canonical" href="{url}">',body,p)
+            self.assertIn('name="author" content="AI 酋长 Andy"',body,p)
+            self.assertIn('https://www.a6no1.cn/',body,p)
+            self.assertIn('研究来源及历史核验日',body,p)
+            scripts=re.findall(r'<script type="application/ld\+json">(.*?)</script>',body,re.S)
+            self.assertEqual(len(scripts),1,p)
+            structured=json.loads(scripts[0])
+            self.assertEqual(structured['@type'],'WebPage',p)
+            self.assertEqual(structured['url'],url,p)
+            self.assertEqual(structured['isPartOf']['@id'],'https://aipmandy.github.io/how-to-get-offer/#work',p)
+            self.assertEqual(structured['author']['name'],'AI 酋长 Andy',p)
+            self.assertEqual(structured['publisher']['url'],'https://www.a6no1.cn/',p)
+
     def test_bad_url_blocked_by_renderer(self):
         self.assertNotIn('href="javascript:',md_to_html('[bad](javascript:alert(1))'))
 

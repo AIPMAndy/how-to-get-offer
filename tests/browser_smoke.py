@@ -96,6 +96,15 @@ def run(base_url):
                 assert_no_overflow(page, label + "/after-interactions")
                 page.screenshot(path=str(OUT / (label + ".png")), full_page=True)
                 assert not failures, (label, failures)
+                # Published Markdown reader has its own canonical, author and source trail.
+                chapter = page.goto(base_url + "guides/00-start-here.html", wait_until="networkidle")
+                assert chapter is not None and chapter.status == 200, (label, "reader status")
+                assert page.locator('link[rel="canonical"]').get_attribute("href") == base_url + "guides/00-start-here.html", label
+                assert page.locator('script[type="application/ld+json"]').count() == 1, label
+                assert page.get_by_role("link", name="公司官网 ↗").count() == 1, label
+                assert page.get_by_role("link", name="研究来源及历史核验日").count() == 1, label
+                assert_no_overflow(page, label + "/reader")
+                page.screenshot(path=str(OUT / (label + "-reader.png")), full_page=True)
                 print(f"PASS {label}: 100 tasks, local persistence, job form, CSV, XSS escaping, layout")
                 ctx.close()
         finally:
