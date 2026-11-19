@@ -128,6 +128,26 @@ def build_readers():
             body=md_to_html(p.read_text('utf-8'))
             # relative links back to root on subfolder documents
             doc=f'<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="referrer" content="no-referrer"><title>{html.escape(title)}｜社招拿Offer保姆级指南</title><style>{DOC_CSS}</style></head><body><nav class="top"><a href="../index.html">← 返回互动指南</a>　·　<a href="https://github.com/AIPMAndy/how-to-get-offer" target="_blank" rel="noopener noreferrer">GitHub项目</a>　·　<a href="https://metaver.vip/" target="_blank" rel="noopener noreferrer">个人官网 ↗</a></nav><article>{body}</article><footer class="contact">AI 酋长 Andy · 微信 <strong>AIPMAndy</strong> · <a href="https://metaver.vip/" target="_blank" rel="noopener noreferrer">个人官网</a><br>求职、职业发展与 AI 应用咨询可选，不影响免费阅读。</footer></body></html>'
+            # Reader SEO metadata uses the published path, not a shared homepage canonical.
+            canonical=f'https://aipmandy.github.io/how-to-get-offer/{root}/{p.stem}.html'
+            title_html=html.escape(title,quote=True)
+            schema=json.dumps({
+                '@context':'https://schema.org','@type':'WebPage','url':canonical,
+                'isPartOf':{'@id':'https://aipmandy.github.io/how-to-get-offer/#work'},
+                'author':{'@type':'Person','name':'AI 酋长 Andy','url':'https://metaver.vip/'},
+                'publisher':{'@type':'Organization','name':'上海安迪星觉科技有限公司','url':'https://www.a6no1.cn/'}
+            },ensure_ascii=False,separators=(',',':'))
+            seo=(f'<meta name="description" content="{title_html}｜免费社招求职实操教程，包含步骤、核验方法与适用边界。">'
+                 '<meta name="author" content="AI 酋长 Andy">'
+                 f'<link rel="canonical" href="{canonical}">'
+                 '<meta property="og:type" content="article">'
+                 f'<meta property="og:title" content="{title_html}｜社招拿Offer保姆级指南">'
+                 f'<meta property="og:url" content="{canonical}">'
+                 f'<script type="application/ld+json">{schema}</script>')
+            doc=doc.replace('</title><style>','</title>'+seo+'<style>')
+            doc=doc.replace('个人官网 ↗</a></nav>','个人官网 ↗</a>　·　<a href="https://www.a6no1.cn/" target="_blank" rel="noopener noreferrer">公司官网 ↗</a></nav>')
+            doc=doc.replace('<br>求职、职业发展与 AI 应用咨询可选，不影响免费阅读。</footer>',
+                '<br><a href="https://github.com/AIPMAndy/how-to-get-offer/blob/main/SOURCES.md" target="_blank" rel="noopener noreferrer">研究来源及历史核验日</a>　·　<a href="https://metaver.vip/services" target="_blank" rel="noopener noreferrer">咨询服务</a><br>教学模拟不等于真实用户结果；动态岗位与法规请核验官方原文。免费阅读无需留资。</footer>')
             p.with_suffix('.html').write_text(doc,encoding='utf-8')
 
 if __name__=='__main__':
