@@ -6,16 +6,34 @@
  const STATUS=['已投递','已回复','已约面','面试中','Offer','已结束'];
  const K='how-to-get-offer.v1';
  const defaultData=()=>({version:1,done:[],jobs:[]});
- function safeLoad(){try{const raw=JSON.parse(localStorage.getItem(K)||'null');return validate(raw)||defaultData();}catch{return defaultData();}}
+ let originalRecovery=null,readFailed=false;
+ function safeLoad(){
+   try{
+     const raw=localStorage.getItem(K);
+     if(raw===null)return defaultData();
+     try{const clean=validate(JSON.parse(raw));if(clean)return clean;}catch{}
+     originalRecovery=raw;return defaultData();
+   }catch{readFailed=true;return defaultData();}
+ }
  function validate(v){if(!v||v.version!==1||!Array.isArray(v.done)||!Array.isArray(v.jobs)||v.jobs.length>5000||v.done.length>1000)return null;
   if(!v.done.every(x=>typeof x==='string'&&/^[A-Z0-9-]{1,14}$/.test(x)))return null;
   if(!v.jobs.every(x=>x&&typeof x.id==='string'&&x.id.length>0&&x.id.length<=90&&typeof x.company==='string'&&x.company.length<=80&&typeof x.role==='string'&&x.role.length<=80&&STATUS.includes(x.status)&&typeof x.date==='string'&&x.date.length<=30))return null;
   if(new Set(v.jobs.map(j=>j.id)).size!==v.jobs.length)return null;
   return {version:1,done:[...new Set(v.done.filter(id=>TASKS.some(t=>t.id===id)))],jobs:v.jobs.map(j=>({id:j.id.slice(0,90),company:j.company,role:j.role,status:j.status,date:j.date,maxRank:Number.isInteger(j.maxRank)&&j.maxRank>=0&&j.maxRank<=4?j.maxRank:(j.status==='已结束'?0:STATUS.indexOf(j.status))}))};}
  let store=safeLoad();
- let canSave=true;
+ let canSave=!readFailed&&originalRecovery===null;
  const openedTasks=new Set();
- function save(){try{localStorage.setItem(K,JSON.stringify(store));}catch{canSave=false;$('storageWarning').classList.remove('hidden');}}
+ function storageFeedback(){
+   const recovering=originalRecovery!==null;
+   $('storageWarning').classList.toggle('hidden',canSave&&!recovering);
+   $('storageMessage').textContent=recovering?'旧记录格式异常，原始数据仍在本机，当前编辑不会覆盖它。请先下载原始记录；确认替换后才会写入当前内容。':'当前浏览器无法读取或保存本机数据。请导出进度 JSON 手动备份。';
+   $('recoveryActions').classList.toggle('hidden',!recovering);
+ }
+ function save(replaceRecovery=false){
+   if(originalRecovery!==null&&!replaceRecovery){canSave=false;storageFeedback();return false;}
+   try{localStorage.setItem(K,JSON.stringify(store));originalRecovery=null;readFailed=false;canSave=true;storageFeedback();return true;}
+   catch{canSave=false;storageFeedback();return false;}
+ }
  function el(tag,cls,txt){const n=document.createElement(tag);if(cls)n.className=cls;if(txt!==undefined)n.textContent=txt;return n;}
  function updateProgress(){const count=store.done.length;const pct=Math.round(count/TASKS.length*100);$('progressNum').textContent=count+' / '+TASKS.length;$('progressPct').textContent=pct+'%';$('progressFill').style.transform='scaleX('+pct/100+')';$('progressMeter').setAttribute('aria-valuenow',String(pct));const box=$('stageProgress');box.replaceChildren();STAGES.forEach(stage=>{const all=TASKS.filter(t=>t.stage===stage), done=all.filter(t=>store.done.includes(t.id)).length;const tile=el('div','stage-tile');tile.append(el('b','',stage),el('small','',done+'/'+all.length+' 完成'));box.append(tile);});}
  function visibleTasks(){const q=$('taskSearch').value.trim().toLowerCase();const s=$('stageFilter').value;const pending=$('pendingOnly').checked;
@@ -41,8 +59,10 @@
  $('jobForm').addEventListener('submit',(e)=>{e.preventDefault();const company=$('jobCompany').value.trim(),role=$('jobRole').value.trim();if(!company||!role)return;if(store.jobs.length>=5000){alert('最多保存5000条，请导出备份后删除旧数据。');return;}const job={id:String(Date.now())+'-'+Math.random().toString(36).slice(2,9),company:company.slice(0,80),role:role.slice(0,80),status:$('jobStatus').value,date:new Date().toLocaleDateString('zh-CN'),maxRank:$('jobStatus').value==='已结束'?0:STATUS.indexOf($('jobStatus').value)};store.jobs.unshift(job);save();renderJobs();$('jobForm').reset();$('jobCompany').focus({preventScroll:true});});
  function download(name,mime,body){const a=document.createElement('a');const url=URL.createObjectURL(new Blob([body],{type:mime}));a.href=url;a.download=name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),2000);}
  $('taskTxtExport').addEventListener('click',()=>{const visible=visibleTasks();const lines=['社招拿 Offer · 当前任务清单','作者：AI 酋长 Andy / 星觉科技','微信：AIPMAndy','个人官网：https://metaver.vip/','公司官网：https://www.a6no1.cn/','说明：仅导出当前筛选的公开任务内容，不包含个人岗位记录或薪酬输入。',`当前筛选共 ${visible.length} 项`,''];visible.forEach(t=>{lines.push(`[${store.done.includes(t.id)?'已完成':'未完成'}] ${t.id} · ${t.stage} · ${t.title}`,'执行：'+t.do,'凭证：'+t.done,'受阻：'+t.stuck,'');});download('offer-current-tasks.txt','text/plain;charset=utf-8','\ufeff'+lines.join('\r\n'));});
+ $('downloadRecovery').addEventListener('click',()=>{if(originalRecovery!==null)download('offer-original-recovery.json','application/json;charset=utf-8',originalRecovery);});
+ $('replaceRecovery').addEventListener('click',()=>{if(originalRecovery!==null&&confirm('这将用当前页面内容替换旧的异常记录。请先下载原始记录。确认替换？'))save(true);});
  $('backup').addEventListener('click',()=>download('offer-guide-backup.json','application/json;charset=utf-8',JSON.stringify({...store,exportedAt:new Date().toISOString()},null,2)));
- $('restore').addEventListener('change',async(e)=>{const file=e.target.files?.[0];if(!file)return;if(file.size>2000000){alert('文件超过2MB，不予导入。');e.target.value='';return;}try{const d=validate(JSON.parse(await file.text()));if(!d)throw Error('格式不正确');if(confirm('导入将覆盖当前任务与岗位记录，确认继续？')){store=d;save();updateProgress();renderTasks();renderJobs();alert('已导入到当前浏览器。');}}catch(err){alert('无法导入：'+err.message);}e.target.value='';});
+ $('restore').addEventListener('change',async(e)=>{const file=e.target.files?.[0];if(!file)return;if(file.size>2000000){alert('文件超过2MB，不予导入。');e.target.value='';return;}try{const d=validate(JSON.parse(await file.text()));if(!d)throw Error('格式不正确');if(confirm('导入将覆盖当前任务与岗位记录，确认继续？')){store=d;const persisted=save(true);updateProgress();renderTasks();renderJobs();alert(persisted?'已导入到当前浏览器。':'已导入当前页面，但未保存成功，请备份。');}}catch(err){alert('无法导入：'+err.message);}e.target.value='';});
  function csvEsc(s){let x=String(s??'');if(/^[\s]*[=+@\-]/.test(x))x="'"+x;return '"'+x.replace(/"/g,'""')+'"';}
  $('csvExport').addEventListener('click',()=>{const rows=[['公司','岗位','当前状态','曾达到最高阶段','录入日期'],...store.jobs.map(j=>[j.company,j.role,j.status,STATUS[j.maxRank]||'已投递',j.date])];download('job-pipeline.csv','text/csv;charset=utf-8','\ufeff'+rows.map(r=>r.map(csvEsc).join(',')).join('\r\n'));});
  $('clearTasks').addEventListener('click',()=>{if(confirm('确认清空全部任务勾选？岗位记录不会删除。')){store.done=[];save();renderTasks();updateProgress();}});
@@ -92,6 +112,5 @@
      await navigator.clipboard.writeText('AIPMAndy');copyBtn.textContent='已复制 AIPMAndy';}
    catch{copyBtn.textContent='请手动复制 AIPMAndy';}
  });
- updateProgress();renderTasks();renderJobs();salary();save();
- if(!canSave){$('storageWarning').classList.remove('hidden');}
+ updateProgress();renderTasks();renderJobs();salary();storageFeedback();
 })();

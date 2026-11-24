@@ -147,6 +147,27 @@ def run(base_url):
                 page.screenshot(path=str(OUT / (label + "-reader.png")), full_page=True)
                 print(f"PASS {label}: 100 tasks, local persistence, job form, CSV, XSS escaping, layout")
                 ctx.close()
+            # A corrupted stored backup must never be overwritten merely by page initialization or a normal edit.
+            recovery = browser.new_context(accept_downloads=True)
+            recovery.add_init_script("localStorage.setItem('how-to-get-offer.v1', 'broken original record')")
+            page = recovery.new_page()
+            page.goto(base_url, wait_until='networkidle')
+            assert page.locator('#storageWarning').is_visible()
+            assert '旧记录格式异常' in page.locator('#storageMessage').inner_text()
+            page.locator('#taskList .task input[type=checkbox]').first.check()
+            assert page.evaluate("localStorage.getItem('how-to-get-offer.v1')") == 'broken original record'
+            with page.expect_download() as recovery_file:
+                page.locator('#downloadRecovery').click()
+            assert Path(recovery_file.value.path()).read_text() == 'broken original record'
+            page.once('dialog', lambda dialog: dialog.dismiss())
+            page.locator('#replaceRecovery').click()
+            assert page.evaluate("localStorage.getItem('how-to-get-offer.v1')") == 'broken original record'
+            page.once('dialog', lambda dialog: dialog.accept())
+            page.locator('#replaceRecovery').click()
+            assert page.evaluate("JSON.parse(localStorage.getItem('how-to-get-offer.v1')).done.length") == 1
+            assert not page.locator('#storageWarning').is_visible()
+            print('PASS corrupt local backup preserved until explicit recovery replacement')
+            recovery.close()
         finally:
             browser.close()
 
