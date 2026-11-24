@@ -44,12 +44,31 @@ def run(base_url):
                 assert page.locator("#taskList .task").count() == 100, label
                 assert "0 / 100" in page.locator("#progressNum").inner_text(), label
                 assert page.locator("#salaryResults .salary-row").count() == 2, label
+                assert "等待完整有效" in page.locator("#salaryResults").inner_text(), label
+                page.locator("#salaryDemo").click()
+                assert "虚构教学示例" in page.locator("#salaryMode").inner_text(), label
+                assert "+34,000" in page.locator("#salaryResults").inner_text(), label
+                page.locator("#aBase").fill("")
+                assert "才显示年度固定现金差" in page.locator("#salaryResults").inner_text(), label
+                page.locator("#aBase").fill("-1")
+                assert page.locator("#aBase").get_attribute("aria-invalid") == "true", label
+                page.locator("#aBase").fill("20000")
+                page.once("dialog", lambda dialog: dialog.accept())
+                page.locator("#salaryClear").click()
+                assert page.locator("#aBase").input_value() == "", label
+                page.locator("#salaryUndo").click()
+                assert page.locator("#aBase").input_value() == "20000", label
                 assert page.locator("#copyWechat").count() == 1, label
                 assert page.locator("a[href$='how-to-get-offer-guide.pdf']").count() >= 1, label
                 assert_no_overflow(page, label + "/initial")
 
                 # 100-item task list must be usable, persisted locally, and searchable.
-                page.locator("#taskList .task input[type=checkbox]").first.check()
+                first_task = page.locator("#taskList .task").first
+                first_task.locator("summary").click()
+                first_task.locator("input").focus()
+                page.keyboard.press("Space")
+                assert first_task.locator("details").get_attribute("open") is not None, label
+                assert first_task.locator("input").evaluate("(el)=>document.activeElement===el"), label
                 assert "1 / 100" in page.locator("#progressNum").inner_text(), label
                 page.reload(wait_until="networkidle")
                 assert page.locator("#taskList .task input[type=checkbox]").first.is_checked(), label
@@ -89,6 +108,27 @@ def run(base_url):
                     page.locator("#csvExport").click()
                 download = download_info.value
                 assert download.suggested_filename.endswith(".csv"), label
+
+                # Closing a newly entered application does not imply reaching an Offer.
+                page.locator("#jobCompany").fill("教学测试：结束记录")
+                page.locator("#jobRole").fill("测试岗位")
+                page.locator("#jobStatus").select_option("已结束")
+                page.locator("#jobForm button[type=submit]").click()
+                assert page.locator("#jobsAll").inner_text().strip() == "2", label
+                assert page.locator("#jobsOffer").inner_text().strip() == "0", label
+                page.reload(wait_until="networkidle")
+                assert page.locator("#jobsOffer").inner_text().strip() == "0", label
+                sel = page.locator("#jobRows select").first
+                sel.focus()
+                sel.select_option("已约面")
+                assert sel.evaluate("(el)=>document.activeElement===el"), label
+                assert page.locator("#jobsInterview").inner_text().strip() == "1", label
+                sel.select_option("Offer")
+                assert page.locator("#jobsOffer").inner_text().strip() == "1", label
+                sel.select_option("已结束")
+                assert page.locator("#jobsOffer").inner_text().strip() == "1", label
+                page.emulate_media(reduced_motion="reduce")
+                assert page.locator("#progressFill").evaluate("(el)=>getComputedStyle(el).transitionDuration") == "0s", label
 
                 # Check accessible action, not clipboard permission state on an emulator.
                 page.locator("#copyWechat").click()

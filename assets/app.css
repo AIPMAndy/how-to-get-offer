@@ -27,3 +27,13 @@ body{letter-spacing:-.006em}.nav{background:rgba(255,255,255,.96);border-bottom:
 .toolbox .filter-check input{accent-color:#254f87;width:18px;height:18px;margin:0}
 .toolbox #resetTaskFilters{min-height:44px}
 @media(max-width:620px){.toolbox .filter-check{min-height:44px}.toolbox #resetTaskFilters{flex:1}}
+/* Only the progress value moves, not its layout or the active checkbox/selector. */
+:root{--motion-fast:120ms;--motion-standard:180ms;--motion-ease:cubic-bezier(.2,0,0,1)}
+#progressFill{width:100%;transform:scaleX(0);transform-origin:left;transition:transform var(--motion-standard) var(--motion-ease)}
+.btn,.rm{transition:background-color var(--motion-fast) var(--motion-ease),color var(--motion-fast) var(--motion-ease),border-color var(--motion-fast) var(--motion-ease),transform var(--motion-fast) var(--motion-ease)}
+.btn:active:not(:disabled),.rm:active{transform:scale(.985)}
+button:disabled{opacity:.45;cursor:not-allowed}
+input[aria-invalid="true"]{border-color:#b42318;outline:2px solid #b4231838}
+.salary-controls{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:0 0 14px}
+.salary-mode{margin:0 0 14px;color:var(--muted);font-size:13px}
+@media(prefers-reduced-motion:reduce){#progressFill,.btn,.rm{transition:none!important;animation:none!important}.btn:active,.rm:active{transform:none!important}}
