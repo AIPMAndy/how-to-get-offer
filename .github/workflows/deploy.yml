@@ -80,6 +80,12 @@ jobs:
                   index=get("")
                   assert b"how-to-get-offer-guide.pdf" in index
                   assert b"AIPMAndy" in index and b"metaver.vip" in index and b"a6no1.cn" in index
+                  assert index==Path("index.html").read_bytes(), "Online homepage differs from build"
+                  for path in ("assets/app.css","assets/app.js"):
+                      source=Path(path).read_bytes()
+                      online=get(path+"?sha="+hashlib.sha256(source).hexdigest()[:12])
+                      assert online==source, "Online interactive asset differs from build: "+path
+                      print("LIVE asset SHA-256",path,hashlib.sha256(source).hexdigest())
                   pdf=get("pdf/how-to-get-offer-guide.pdf?sha="+digest[:12])
                   assert hashlib.sha256(pdf).hexdigest()==digest, "Online PDF differs from generated source"
                   robots=get("robots.txt")
