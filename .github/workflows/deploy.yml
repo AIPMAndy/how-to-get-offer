@@ -42,7 +42,7 @@ jobs:
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: offer-pdf-qa
+          name: offer-pdf-qa-${{ github.run_attempt }}
           path: artifacts/pdf-qa/
           if-no-files-found: warn
           retention-days: 30
@@ -58,9 +58,13 @@ jobs:
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
+          # A rerun must not select an artifact retained from a previous attempt.
+          name: github-pages-${{ github.run_attempt }}
           path: '.'
       - id: deployment
         uses: actions/deploy-pages@v4
+        with:
+          artifact_name: github-pages-${{ github.run_attempt }}
 
       - name: Verify public Pages bytes after release
         run: |
